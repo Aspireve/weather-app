@@ -21,30 +21,56 @@ class WeatherApp(ed.Component):
         self.current_time = ""
         self.city_new_name = "Mumbai"
 
-    def get_weather(self):
-        city = self.city_new_name
-        location = Nominatim(user_agent="geoapiExercises").geocode(city)
-        obj = TimezoneFinder()
-        result = obj.timezone_at(lng=location.longitude, lat=location.latitude)
-        home = pytz.timezone(result)
-        local_time = datetime.now(home)
-        self.current_time = local_time.strftime("%I:%M %p")
-        print(self.current_time)
-        lat = str(location.latitude)
-        lon = str(location.longitude)
-        API_key = "ba7dd73aabf917793caee6fe1da2eb97"
-        api = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=" + API_key
-        print(api)
-        json_data = requests.get(api).json()
-        print(json_data)
-        self.condition = json_data["weather"][0]["main"]
-        self.description = json_data["weather"][0]["description"]
-        self.temperature = int(int(json_data["main"]["temp"]) - 273.15)
-        self.feel_temperature = int(int(json_data["main"]["feels_like"]) - 273.15)
-        self.pressure = int(json_data["main"]["pressure"])
-        self.humidity = int(json_data["main"]["humidity"])
+    # def get_weather(self):
+    #     city = self.city_new_name
+    #     location = Nominatim(user_agent="geoapiExercises").geocode(city)
+    #     obj = TimezoneFinder()
+    #     result = obj.timezone_at(lng=location.longitude, lat=location.latitude)
+    #     home = pytz.timezone(result)
+    #     local_time = datetime.now(home)
+    #     self.current_time = local_time.strftime("%I:%M %p")
+    #     print(self.current_time)
+    #     lat = str(location.latitude)
+    #     lon = str(location.longitude)
+    #     API_key = "ba7dd73aabf917793caee6fe1da2eb97"
+    #     api = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=" + API_key
+    #     print(api)
+    #     json_data = requests.get(api).json()
+    #     print(json_data)
+    #     self.condition = json_data["weather"][0]["main"]
+    #     self.description = json_data["weather"][0]["description"]
+    #     self.temperature = int(int(json_data["main"]["temp"]) - 273.15)
+    #     self.feel_temperature = int(int(json_data["main"]["feels_like"]) - 273.15)
+    #     self.pressure = int(json_data["main"]["pressure"])
+    #     self.humidity = int(json_data["main"]["humidity"])
+    #     print("Values Assigned")
 
     def render(self):
+
+        def get_weather():
+            city = self.city_new_name
+            location = Nominatim(user_agent="geoapiExercises").geocode(city)
+            obj = TimezoneFinder()
+            result = obj.timezone_at(lng=location.longitude, lat=location.latitude)
+            home = pytz.timezone(result)
+            local_time = datetime.now(home)
+            self.current_time = local_time.strftime("%I:%M %p")
+            print(self.current_time)
+            lat = str(location.latitude)
+            lon = str(location.longitude)
+            API_key = "ba7dd73aabf917793caee6fe1da2eb97"
+            api = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=" + API_key
+            print(api)
+            json_data = requests.get(api).json()
+            print(json_data)
+            self.set_state(condition=json_data["weather"][0]["main"])
+            self.set_state(description = json_data["weather"][0]["description"])
+            self.set_state(temperature = int(int(json_data["main"]["temp"]) - 273.15))
+            self.set_state(feel_temperature = int(int(json_data["main"]["feels_like"]) - 273.15))
+            self.set_state(pressure = int(json_data["main"]["pressure"]))
+            self.set_state(humidity = int(json_data["main"]["humidity"]))
+            print("Values Assigned")
+
         city_new_name = self.city_new_name
         city_name = city_new_name
         window_style = {"height": 500, "width": 900, "align": "justify", "background-color": "#46b8f9"}
@@ -63,7 +89,7 @@ class WeatherApp(ed.Component):
             ed.View(layout="row", style=input_style_1)(
                 TextInput(city_name, style=input_style | {"margin-right": "2px solid #46b8f9"},
                           on_change=lambda text: self.set_state(city_new_name=text)),
-                Button("Search", style=search_style, on_click=self.get_weather()),
+                Button("Search", style=search_style, on_click=lambda e: get_weather()),
             ),
             ed.View(layout="row", style=heading_container)(
                 Label("Current Temperature", style=heading_style),
@@ -82,7 +108,7 @@ class WeatherApp(ed.Component):
             ),
             ed.View(layout="row", style=temp_data_row_style)(
                 Label("Ambience : ", style=temp_data_title_style),
-                Label(f"{self.condition}, {self.description}", style=temp_data_data_style),
+                Label(self.condition, style=temp_data_data_style),
             ),
             ed.View(layout="row", style=temp_data_row_style)(
                 Label("Pressure : ", style=temp_data_title_style),
