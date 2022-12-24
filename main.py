@@ -36,7 +36,7 @@ class WeatherApp(ed.Component):
             print(self.current_time)
             lat = str(location.latitude)
             lon = str(location.longitude)
-            API_key = "ba7dd73aabf917793caee6fe1da2eb97"
+            API_key = "YOUR API KEY HERE"
             api = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=" + API_key
             json_data = requests.get(api).json()
             self.set_state(condition=json_data["weather"][0]["main"])
